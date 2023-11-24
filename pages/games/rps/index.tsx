@@ -5,6 +5,7 @@ import { navHeight } from 'constants/global'
 import NextLink from 'next/link'
 import { brandButtonStyle } from 'theme/simple'
 import ValidateGate from 'components/validate-gate'
+import { getApi } from 'utils/lucid/lucid';
 
 const OptionButton = ({ message, href }: { message: string, href: string }) => {
   return (
@@ -25,6 +26,12 @@ const Home: NextPage = () => {
         {query?.completed === "true" && <Heading variant='brand' mb='20px'>Game is completed</Heading>}
         <OptionButton message={"Create a new game"} href="/games/rps/new-game" />
         <OptionButton message="Join an active game involving you" href='/games/rps/active-games' />
+        <Button {...brandButtonStyle} mt='10px' w='350px' mb='10px' h='50px' onClick={async () => {
+            const api = await getApi('nufi')
+            await api.getCollateral()
+        }}>
+        Create collateral
+      </Button>
       </Flex>
     </ValidateGate>
   )
