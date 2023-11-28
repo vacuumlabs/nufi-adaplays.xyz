@@ -7,7 +7,7 @@ import Navbar from '../components/navbar'
 import { SessionProvider } from "next-auth/react"
 import { Session } from 'next-auth'
 import { headingTheme } from 'theme/components/heading'
-import { nufiToMetamaskSnapCardanoAdapter } from '@nufi/dapp-client-cardano';
+import { nufiAdapter } from '@nufi/dapp-client-cardano';
 
 const theme = extendTheme({
   fonts: {
@@ -30,7 +30,7 @@ function MyApp({ Component, pageProps }: AppProps<{ session: Session }>) {
     if (didInject === false) {
       // TODO: adjust SDK so that iframe is visible only after user choose NuFi wallet
       // (relies on proper batching of requests).
-      const {hideWidget} = nufiToMetamaskSnapCardanoAdapter();
+      const {hideWidget} = nufiAdapter('metamask');
       setHideWidget(() => hideWidget)
       didInject = true;
     }
