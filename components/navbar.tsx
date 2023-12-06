@@ -40,6 +40,7 @@ import YupPassword from 'yup-password'
 YupPassword(yup)
 import { brandButtonStyle } from 'theme/simple'
 import { getApi, getLucid } from "utils/lucid/lucid";
+import Image from "next/image";
 
 export default function Navbar({hideWidget}: {hideWidget?: () => void}) {
   const [logoHover, setLogoHover] = useState<boolean>(false);
@@ -219,7 +220,10 @@ const ConnectButton = ({hideWidget}: {hideWidget?: () => void}) => {
               <VStack>
                 {supportedWallets.map((walletName) => (
                   <Button key={walletName} onClick={() => { setSelectWalletTapped(true); connectWallet(walletName) }} variant='link' colorScheme='black' isLoading={selectWalletTapped}>
-                    {'Metamask (Flask)'}
+                    <div style={{display: "flex"}}>
+                      <Image alt="" src="/metamaskFlask.png" width={18} height={18} />
+                      <span style={{paddingLeft: 8}}>{'Metamask (Flask)'}</span>
+                    </div>
                   </Button>
                 ))}
               </VStack>
