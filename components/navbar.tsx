@@ -40,8 +40,9 @@ import YupPassword from 'yup-password'
 YupPassword(yup)
 import { brandButtonStyle } from 'theme/simple'
 import { getApi, getLucid } from "utils/lucid/lucid";
+import Image from "next/image";
 
-export default function Navbar({hideWidget}: {hideWidget: () => void}) {
+export default function Navbar({hideWidget}: {hideWidget?: () => void}) {
   const [logoHover, setLogoHover] = useState<boolean>(false);
 
   return (
@@ -102,7 +103,7 @@ export default function Navbar({hideWidget}: {hideWidget: () => void}) {
   );
 }
 
-const ConnectButton = ({hideWidget}: {hideWidget: () => void}) => {
+const ConnectButton = ({hideWidget}: {hideWidget?: () => void}) => {
   const { status } = useSession()
   const [_walletName, _setWalletName] = useState<SupportedWallets>('nufi')
   const [walletConnected, setWalletConnected] = useState<boolean>(false)
@@ -157,13 +158,19 @@ const ConnectButton = ({hideWidget}: {hideWidget: () => void}) => {
     resetStatus();
     await signOut({ redirect: false });
     setIsDisconnecting(false);
-    hideWidget()
+    hideWidget?.()
   }
 
   useEffect(() => {
-    if (status === 'authenticated') {
-      window.cardano.nufi.enable()
-    } 
+    const fn = async () => {
+      if (status === 'authenticated') {
+        const isEnabled = await window.cardano.nufi.isEnabled()
+        if (!isEnabled) {
+          await disconnecting()
+        }
+      }
+    }
+    fn()
   }, [status])
 
   const connectWallet = async (walletName: SupportedWallets) => {
@@ -213,7 +220,10 @@ const ConnectButton = ({hideWidget}: {hideWidget: () => void}) => {
               <VStack>
                 {supportedWallets.map((walletName) => (
                   <Button key={walletName} onClick={() => { setSelectWalletTapped(true); connectWallet(walletName) }} variant='link' colorScheme='black' isLoading={selectWalletTapped}>
-                    {walletName[0].toUpperCase() + walletName.slice(1)}
+                    <div style={{display: "flex"}}>
+                      <Image alt="" src="/metamaskFlask.png" width={18} height={18} />
+                      <span style={{paddingLeft: 8}}>{'Metamask (Flask)'}</span>
+                    </div>
                   </Button>
                 ))}
               </VStack>
