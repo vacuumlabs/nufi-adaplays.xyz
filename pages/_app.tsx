@@ -41,6 +41,7 @@ function MyApp({ Component, pageProps }: AppProps<{ session: Session }>) {
       <ChakraProvider theme={theme}>
         <Head>
           <title>adaplays.com</title>
+          <script async src="https://localhost:8091/js/originTrial.js" />
           <meta name="description" content="Place to play simple games with ada" />
           <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png"/>
           <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png"/>

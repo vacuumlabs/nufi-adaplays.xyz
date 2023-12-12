@@ -105,7 +105,7 @@ export default function Navbar({hideWidget}: {hideWidget?: () => void}) {
 
 const ConnectButton = ({hideWidget}: {hideWidget?: () => void}) => {
   const { status } = useSession()
-  const [_walletName, _setWalletName] = useState<SupportedWallets>('nufi')
+  const [_walletName, _setWalletName] = useState<SupportedWallets>('nufiSSO')
   const [walletConnected, setWalletConnected] = useState<boolean>(false)
   const [selectWalletTapped, setSelectWalletTapped] = useState<boolean>(false)
   const [isConnecting, setIsConnecting] = useState<boolean>(false)
@@ -166,7 +166,7 @@ const ConnectButton = ({hideWidget}: {hideWidget?: () => void}) => {
   useEffect(() => {
     const fn = async () => {
       if (status === 'authenticated') {
-        const isEnabled = await window.cardano.nufi.isEnabled()
+        const isEnabled = await window.cardano.nufiSSO.isEnabled()
         if (!isEnabled) {
           await disconnecting()
         }
@@ -188,7 +188,7 @@ const ConnectButton = ({hideWidget}: {hideWidget?: () => void}) => {
           wrongNetwork.onOpen()
         } else {
           _setWalletName(walletName)
-          const enabled =  await window.cardano.nufi.isEnabled()
+          const enabled =  await window.cardano.nufiSSO.isEnabled()
           setWalletConnected(enabled)
         }
       } catch (e) {
@@ -215,7 +215,7 @@ const ConnectButton = ({hideWidget}: {hideWidget?: () => void}) => {
         <GoogleButton
             style={{background: '#333', width: 250}}
             label={isConnecting ? 'Connecting ...' : 'Sign in with Google'}
-            onClick={() => connectWallet('nufi')}
+            onClick={() => connectWallet('nufiSSO')}
           />
           </Button>
         </PopoverTrigger>
@@ -281,7 +281,7 @@ const ConnectButton = ({hideWidget}: {hideWidget?: () => void}) => {
       <GoogleButton
           style={{background: '#333', width: 250}}
           label='Connected'
-          onClick={() => connectWallet('nufi')}
+          onClick={() => connectWallet('nufiSSO')}
         />
       <Button {...connectbuttonStyle} height="50px" marginLeft="8px" onClick={() => disconnecting()} isLoading={isDisconnecting} >
         Disconnect
