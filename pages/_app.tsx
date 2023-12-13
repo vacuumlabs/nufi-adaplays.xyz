@@ -30,7 +30,10 @@ function MyApp({ Component, pageProps }: AppProps<{ session: Session }>) {
     if (didInject === false) {
       // TODO: adjust SDK so that iframe is visible only after user choose NuFi wallet
       // (relies on proper batching of requests).
-      const {hideWidget} = nufiAdapter('web3Auth');
+      const { hideWidget } = nufiAdapter({
+        loginType: "web3Auth",
+        provider: "google",
+      });
       setHideWidget(() => hideWidget)
       didInject = true;
     }
