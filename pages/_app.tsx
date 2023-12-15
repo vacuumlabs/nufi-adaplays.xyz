@@ -7,7 +7,7 @@ import Navbar from '../components/navbar'
 import { SessionProvider } from "next-auth/react"
 import { Session } from 'next-auth'
 import { headingTheme } from 'theme/components/heading'
-import { nufiAdapter } from '@nufi/dapp-client-cardano';
+import { initNufiDappSdk } from '@nufi/dapp-client-core';
 
 const theme = extendTheme({
   fonts: {
@@ -19,21 +19,11 @@ const theme = extendTheme({
   }
 })
 
-// TODO: adjust SDK so that it prevents injecting iframe multiple times
-let didInject = false;
-
 // https://stackoverflow.com/questions/73668032/nextauth-type-error-property-session-does-not-exist-on-type
 function MyApp({ Component, pageProps }: AppProps<{ session: Session }>) {
-  const [hideWidget, setHideWidget] = useState<() => void>()
 
   useEffect(() => {
-    if (didInject === false) {
-      // TODO: adjust SDK so that iframe is visible only after user choose NuFi wallet
-      // (relies on proper batching of requests).
-      const {hideWidget} = nufiAdapter('web3Auth');
-      setHideWidget(() => hideWidget)
-      didInject = true;
-    }
+    initNufiDappSdk();
   }, []);
 
   return (
@@ -53,7 +43,7 @@ function MyApp({ Component, pageProps }: AppProps<{ session: Session }>) {
           <meta name="theme-color" content="#ffffff"/>
         </Head>
         <Container maxWidth='container.md'>
-          <Navbar hideWidget={hideWidget} />
+          <Navbar />
           <Component {...pageProps} />
           <div style={{position: 'fixed', bottom: 10, right: 10}}>Copyright (c) 2022 Sourabh Aggarwal</div>
         </Container>
