@@ -3,7 +3,8 @@
 
 import type { User } from "next-auth"
 import type { SupportedWallets } from '../types/types'
-
+import { initNufiDappSdk } from '@nufi/dapp-client-core';
+import { initNufiDappCardanoSdk } from '@nufi/dapp-client-cardano';
 import { useState, useRef, useEffect } from 'react';
 import NextLink from 'next/link';
 import { navHeight } from 'constants/global';
@@ -42,7 +43,7 @@ YupPassword(yup)
 import { brandButtonStyle } from 'theme/simple'
 import { getApi, getLucid } from "utils/lucid/lucid";
 
-export default function Navbar({hideWidget}: {hideWidget?: () => void}) {
+export default function Navbar() {
   const [logoHover, setLogoHover] = useState<boolean>(false);
 
   return (
@@ -97,15 +98,16 @@ export default function Navbar({hideWidget}: {hideWidget?: () => void}) {
             <Icon pt='10px' height='36px' width='36px' as={FaGithub}></Icon>
           </Box> */}
         </Link>
-        <ConnectButton hideWidget={hideWidget} />
+        <ConnectButton />
       </HStack>
     </Flex>
   );
 }
 
-const ConnectButton = ({hideWidget}: {hideWidget?: () => void}) => {
+const ConnectButton = () => {
   const { status } = useSession()
-  const [_walletName, _setWalletName] = useState<SupportedWallets>('nufiSSO')
+  const [_walletName, _setWalletName] = useState<SupportedWallets | null>(null)
+  const [candidateWallet, setCandidateWallet] = useState<'sso' | 'standard' | null>(null)
   const [walletConnected, setWalletConnected] = useState<boolean>(false)
   const [selectWalletTapped, setSelectWalletTapped] = useState<boolean>(false)
   const [isConnecting, setIsConnecting] = useState<boolean>(false)
@@ -124,7 +126,8 @@ const ConnectButton = ({hideWidget}: {hideWidget?: () => void}) => {
       setSelectWalletTapped(false);
     }, 200)
   }
-  const supportedWallets: SupportedWallets[] = ['nufiSSO']
+  const supportedWallets: SupportedWallets[] = ['nufi', 'nufiSSO', 'nufiSnap']
+  const dropdownWallet: SupportedWallets[] = supportedWallets.filter((v) => v !== 'nufiSSO')
 
   const createPasswordSchema = yup.object().shape({
     password: yup
@@ -155,18 +158,21 @@ const ConnectButton = ({hideWidget}: {hideWidget?: () => void}) => {
   const hasWalletExtension = (walletName: SupportedWallets) => (!!window.cardano?.[walletName])
 
   const disconnecting = async () => {
+    const {hideWidget} = initNufiDappSdk()
+
     setIsDisconnecting(true);
     resetStatus();
     await signOut({ redirect: false });
     setIsDisconnecting(false);
-    hideWidget?.()
+    hideWidget()
     setIsConnecting(false)
+    _setWalletName(null)
   }
 
   useEffect(() => {
     const fn = async () => {
-      if (status === 'authenticated') {
-        const isEnabled = await window.cardano.nufiSSO.isEnabled()
+      if (status === 'authenticated' && _walletName != null) {
+        const isEnabled = await window.cardano[_walletName].isEnabled()
         if (!isEnabled) {
           await disconnecting()
         }
@@ -176,6 +182,15 @@ const ConnectButton = ({hideWidget}: {hideWidget?: () => void}) => {
   }, [status])
 
   const connectWallet = async (walletName: SupportedWallets) => {
+    setCandidateWallet(walletName === 'nufiSSO' ? 'sso' : 'standard')
+
+    if (walletName === 'nufiSSO') {
+      initNufiDappCardanoSdk('sso');
+    }
+    if (walletName === 'nufiSnap') {
+      initNufiDappCardanoSdk('snap')
+    }
+
     if (!hasWalletExtension(walletName)) {
       walletNotFound.onOpen();
     } else {
@@ -188,16 +203,28 @@ const ConnectButton = ({hideWidget}: {hideWidget?: () => void}) => {
           wrongNetwork.onOpen()
         } else {
           _setWalletName(walletName)
-          const enabled =  await window.cardano.nufiSSO.isEnabled()
+          const enabled =  await window.cardano[walletName].isEnabled()
           setWalletConnected(enabled)
         }
       } catch (e) {
         console.error(e);
         resetStatus();
+        // Tmp hack as the PopoverTrigger can not recover for some reason in this case.
+        // As this is mess in general, it would be great to replace PopoverTrigger with some
+        // controlled component instead.
+        window.location.reload()
       } finally {
+        setCandidateWallet(null)
+        setIsConnecting(false)
         setIsDisconnecting(false)
       }
     }
+  }
+
+  const getWalletName = (walletId: string) => {
+    if (walletId === 'nufiSnap') return 'Metamask (Flask)'
+    if (walletId === 'nufi') return 'NuFi'
+    return walletId
   }
 
   if (status === 'loading') return (
@@ -208,19 +235,51 @@ const ConnectButton = ({hideWidget}: {hideWidget?: () => void}) => {
     <>
       <SimpleAlert {...{ isOpen: walletNotFound.isOpen, onClose: () => { resetStatus(); walletNotFound.onClose() }, cancelRef: cancelRefWalletNotFound, message: "You don't have the selected wallet installed." }} />
       <SimpleAlert {...{ isOpen: wrongNetwork.isOpen, onClose: () => { resetStatus(); wrongNetwork.onClose() }, cancelRef: cancelRefWrongNetwork, message: "You have selected wrong network, please switch to Preprod." }} />
-      
+     
       <Popover onClose={resetStatus}>
         <PopoverTrigger>
-        <Button {...connectbuttonStyle} border="none">
-        <GoogleButton
-            style={{background: '#333', width: 250}}
-            label={isConnecting ? 'Connecting ...' : 'Sign in with Google'}
-            onClick={() => connectWallet('nufiSSO')}
-          />
+          <Button {...connectbuttonStyle} border="none" visibility={candidateWallet === 'standard' || (_walletName !== 'nufiSSO' && walletConnected) ? 'hidden': 'visible'}>
+            <GoogleButton
+              style={{background: '#333', width: 250}}
+              label={isConnecting ? 'Connecting ...' : 'Sign in with Google'}
+              onClick={() => {
+                initNufiDappCardanoSdk('sso');
+                _setWalletName('nufiSSO')
+                connectWallet('nufiSSO')
+              }}
+            />
+          </Button>
+        </PopoverTrigger>
+        <PopoverTrigger>
+          <Button {...connectbuttonStyle} height={50} onClick={walletConnected ? () => disconnecting() : () => null} disabled={candidateWallet === 'sso'}>
+            {walletConnected ? 'Disconnect' : 'Choose wallet'}
           </Button>
         </PopoverTrigger>
         {walletConnected === false
-          ? null
+          ? _walletName !== 'nufiSSO' ? (
+            <PopoverContent>
+              <PopoverHeader {...popoverHeaderStyle}>
+                Choose wallet
+              </PopoverHeader>
+              <PopoverArrow />
+              <PopoverCloseButton />
+              <PopoverBody>
+                <VStack>
+                  {dropdownWallet.map((walletId) => (
+                    <Button key={walletId} onClick={() => {
+                      setSelectWalletTapped(true);
+                      connectWallet(walletId)
+                    }} variant='link' colorScheme='black' isLoading={selectWalletTapped}>
+                      {getWalletName(walletId)}
+                    </Button>
+                  ))}
+                </VStack>
+                <PopoverFooter {...popoverFooterStyle}>
+                  <Text align='center'> ✤ step 1 of 2 ✤ </Text>
+                </PopoverFooter>
+              </PopoverBody>
+            </PopoverContent>
+          ) : null
           : <PopoverContent>
             <PopoverHeader {...popoverHeaderStyle}>
               Create session password
@@ -235,6 +294,7 @@ const ConnectButton = ({hideWidget}: {hideWidget?: () => void}) => {
                 initialValues={{ password: '', confirmPassword: '' }}
                 validationSchema={createPasswordSchema}
                 onSubmit={async (values, actions) => {
+                  if (_walletName == null) return
                   const lucid: Lucid = await getLucid(_walletName)
                   const walletAddress = await lucid.wallet.address()
                   const cred: User = { id: walletAddress, password: values.password, wallet: _walletName }
@@ -276,7 +336,7 @@ const ConnectButton = ({hideWidget}: {hideWidget?: () => void}) => {
         }
       </Popover>
     </>
-  ); else return (
+  ); else if (_walletName === 'nufiSSO') return (
     <div style={{display: 'flex', alignItems: 'center'}}>
       <GoogleButton
           style={{background: '#333', width: 250}}
@@ -287,5 +347,9 @@ const ConnectButton = ({hideWidget}: {hideWidget?: () => void}) => {
         Disconnect
       </Button>
     </div>
-  );
+  ); else return (
+    <Button {...connectbuttonStyle} onClick={() => disconnecting()} isLoading={isDisconnecting} >
+      Disconnect
+    </Button>
+  )
 }

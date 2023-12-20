@@ -1140,17 +1140,15 @@
     "@nodelib/fs.scandir" "2.1.5"
     fastq "^1.6.0"
 
-"@nufi/dapp-client-cardano@link:../nufi/packages/dapp-client/cardano":
-  version "0.0.0"
-  uid ""
+"@nufi/dapp-client-cardano@https://github.com/nufi-official/nufi-dapp-sdk/releases/download/v0.1.0/nufi-dapp-client-cardano-0.1.0.tgz":
+  version "0.1.0"
+  resolved "https://github.com/nufi-official/nufi-dapp-sdk/releases/download/v0.1.0/nufi-dapp-client-cardano-0.1.0.tgz#91f3eaa651bb46aee932fb56fdad2c0794821a4b"
+  dependencies:
+    "@nufi/dapp-client-core" "https://github.com/nufi-official/nufi-dapp-sdk/releases/download/v0.1.0/nufi-dapp-client-core-0.1.0.tgz"
 
-"@nufi/dapp-client-core@7.1.2":
-  version "0.0.0"
-  uid ""
-
-"@nufi/dapp-client-core@link:../nufi/packages/dapp-client/core":
-  version "0.0.0"
-  uid ""
+"@nufi/dapp-client-core@https://github.com/nufi-official/nufi-dapp-sdk/releases/download/v0.1.0/nufi-dapp-client-core-0.1.0.tgz":
+  version "0.1.0"
+  resolved "https://github.com/nufi-official/nufi-dapp-sdk/releases/download/v0.1.0/nufi-dapp-client-core-0.1.0.tgz#500dbf10c21b57582c22ff01a6caa33eadd109cc"
 
 "@panva/hkdf@^1.0.1":
   version "1.0.2"
