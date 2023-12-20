@@ -14,8 +14,8 @@
     "@emotion/react": "^11.10.5",
     "@emotion/styled": "^11.10.5",
     "@fontsource/jetbrains-mono": "^4.5.11",
-    "@nufi/dapp-client-cardano": "link:../nufi/packages/dapp-client/cardano",
-    "@nufi/dapp-client-core": "link:../nufi/packages/dapp-client/core",
+    "@nufi/dapp-client-cardano": "https://github.com/nufi-official/nufi-dapp-sdk/releases/download/v0.1.0/nufi-dapp-client-cardano-0.1.0.tgz",
+    "@nufi/dapp-client-core": "https://github.com/nufi-official/nufi-dapp-sdk/releases/download/v0.1.0/nufi-dapp-client-core-0.1.0.tgz",
     "formik": "^2.2.9",
     "framer-motion": "^6",
     "lucid-cardano": "^0.7.6",
@@ -38,8 +38,5 @@
     "eslint": "8.26.0",
     "eslint-config-next": "12.3.1",
     "typescript": "4.8.4"
-  },
-  "resolutions": {
-    "@nufi/dapp-client-core": "link:../nufi/packages/dapp-client/core"
   }
 }

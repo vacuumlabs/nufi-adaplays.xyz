@@ -164,7 +164,6 @@ const ConnectButton = () => {
     resetStatus();
     await signOut({ redirect: false });
     setIsDisconnecting(false);
-    console.log('hidding')
     hideWidget()
     setIsConnecting(false)
     _setWalletName(null)
@@ -252,7 +251,7 @@ const ConnectButton = () => {
           </Button>
         </PopoverTrigger>
         <PopoverTrigger>
-          <Button {...connectbuttonStyle} height={50}  onClick={walletConnected ? () => disconnecting() : null} disabled={candidateWallet === 'sso'}>
+          <Button {...connectbuttonStyle} height={50} onClick={walletConnected ? () => disconnecting() : () => null} disabled={candidateWallet === 'sso'}>
             {walletConnected ? 'Disconnect' : 'Choose wallet'}
           </Button>
         </PopoverTrigger>
@@ -295,6 +294,7 @@ const ConnectButton = () => {
                 initialValues={{ password: '', confirmPassword: '' }}
                 validationSchema={createPasswordSchema}
                 onSubmit={async (values, actions) => {
+                  if (_walletName == null) return
                   const lucid: Lucid = await getLucid(_walletName)
                   const walletAddress = await lucid.wallet.address()
                   const cred: User = { id: walletAddress, password: values.password, wallet: _walletName }
