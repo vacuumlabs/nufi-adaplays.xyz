@@ -30,13 +30,15 @@ const Home: NextPage = () => {
         <OptionButton message={"Create a new game"} href="/games/rps/new-game" />
         <OptionButton message="Join an active game involving you" href='/games/rps/active-games' />
         <Button {...commonButtonProps} onClick={async () => {
-            const api = await getApi('nufi')
+            // Note: update to `nufiSnap` when testing snap
+            const api = await getApi('nufiSSO')
             await api.getCollateral()
           }}>
           Create collateral
         </Button>
         <Button {...commonButtonProps}  onClick={async () => {
-          const api = await getApi('nufi')
+           // Note: update to `nufiSnap` when testing snap
+          const api = await getApi('nufiSSO')
           // this provides encoded address of selected account.
           // There is probably better way to access the address.
           // This is solely for convenience.
