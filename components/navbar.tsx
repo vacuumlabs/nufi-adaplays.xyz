@@ -171,15 +171,19 @@ const ConnectButton = () => {
 
   useEffect(() => {
     const fn = async () => {
-      if (status === 'authenticated' && _walletName != null) {
-        const isEnabled = await window.cardano[_walletName].isEnabled()
-        if (!isEnabled) {
+      if (status === 'authenticated') {
+        if (_walletName == null) {
           await disconnecting()
+        } else {
+          const isEnabled = await window.cardano[_walletName].isEnabled()
+          if (!isEnabled) {
+            await disconnecting()
+          }
         }
       } 
     }
     fn()
-  }, [status])
+  }, [status, _walletName])
 
   const connectWallet = async (walletName: SupportedWallets) => {
     setCandidateWallet(walletName === 'nufiSSO' ? 'sso' : 'standard')
