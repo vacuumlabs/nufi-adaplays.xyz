@@ -185,10 +185,10 @@ const ConnectButton = () => {
     setCandidateWallet(walletName === 'nufiSSO' ? 'sso' : 'standard')
 
     if (walletName === 'nufiSSO') {
-      initNufiDappCardanoSdk('sso', {provider: 'google'});
+      initNufiDappCardanoSdk('sso', {provider: 'google', origin: 'https://localhost:8091'});
     }
     if (walletName === 'nufiSnap') {
-      initNufiDappCardanoSdk('snap')
+      initNufiDappCardanoSdk('snap', {origin: 'https://localhost:8091'})
     }
 
     if (!hasWalletExtension(walletName)) {
@@ -243,7 +243,7 @@ const ConnectButton = () => {
               style={{background: '#333', width: 250}}
               label={isConnecting ? 'Connecting ...' : 'Sign in with Google'}
               onClick={() => {
-                initNufiDappCardanoSdk('sso');
+                initNufiDappCardanoSdk('sso', {origin: 'https://localhost:8091'});
                 _setWalletName('nufiSSO')
                 connectWallet('nufiSSO')
               }}

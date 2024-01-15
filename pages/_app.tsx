@@ -23,7 +23,7 @@ const theme = extendTheme({
 function MyApp({ Component, pageProps }: AppProps<{ session: Session }>) {
 
   useEffect(() => {
-    initNufiDappSdk();
+    initNufiDappSdk('https://localhost:8091');
   }, []);
 
   return (
