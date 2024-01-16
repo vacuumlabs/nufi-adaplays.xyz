@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import {
   Box,
   Text,
@@ -10,6 +11,11 @@ import type { NextPage } from 'next'
 import NextLink from 'next/link'
 import { brandTextBorder } from 'theme/simple'
 import { AiOutlineRight } from 'react-icons/ai'
+import { appendSocialLoginButton } from '@nufi/dapp-client-core'
+import { initNufiDappCardanoSdk } from '@nufi/dapp-client-cardano'
+import { getApi } from 'utils/lucid/lucid'
+
+const nufiButtonWrapper = 'nufi-button-wrapper'
 
 const Home: NextPage = () => {
 
@@ -24,8 +30,25 @@ const Home: NextPage = () => {
     }
   ]
 
+  useEffect(() => {
+    appendSocialLoginButton({
+      wrapperQuerySelector: `#${nufiButtonWrapper}`, 
+      onButtonClick: async () => {
+        initNufiDappCardanoSdk('sso')
+        await getApi('nufiSSO')
+      },
+      renderIcons: true,
+      styleOptions: {
+        width: '100%'
+      }
+    })
+  }, [])
+
   return (
     <>
+      <br />
+      <div id={nufiButtonWrapper} />
+      <br />
       <Heading variant='brandUnderline' mt='30px'>
         {"⚠ Caution"}
       </Heading>
