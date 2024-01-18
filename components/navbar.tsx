@@ -3,7 +3,7 @@
 
 import type { User } from "next-auth"
 import type { SupportedWallets } from '../types/types'
-import { initNufiDappSdk } from '@nufi/dapp-client-core';
+import { getSocialLoginInfo, initNufiDappSdk } from '@nufi/dapp-client-core';
 import { initNufiDappCardanoSdk } from '@nufi/dapp-client-cardano';
 import { useState, useRef, useEffect } from 'react';
 import NextLink from 'next/link';
@@ -343,7 +343,7 @@ const ConnectButton = () => {
     <div style={{display: 'flex', alignItems: 'center'}}>
       <GoogleButton
           style={{background: '#333', width: 250}}
-          label='Connected'
+          label={getSocialLoginInfo()?.email || 'Connected'}
           onClick={() => connectWallet('nufiSSO')}
         />
       <Button {...connectbuttonStyle} height="50px" marginLeft="8px" onClick={() => disconnecting()} isLoading={isDisconnecting} >

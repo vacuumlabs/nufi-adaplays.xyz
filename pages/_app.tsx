@@ -23,7 +23,12 @@ const theme = extendTheme({
 function MyApp({ Component, pageProps }: AppProps<{ session: Session }>) {
 
   useEffect(() => {
-    initNufiDappSdk('https://localhost:8091');
+   const {onSocialLoginInfoChanged} = initNufiDappSdk('https://localhost:8091');
+
+   onSocialLoginInfoChanged((data) => {
+     console.log('Social login info changed', data)
+   })
+
   }, []);
 
   return (
