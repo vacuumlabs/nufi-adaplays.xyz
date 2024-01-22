@@ -111,6 +111,7 @@ const ConnectButton = () => {
   const [walletConnected, setWalletConnected] = useState<boolean>(false)
   const [selectWalletTapped, setSelectWalletTapped] = useState<boolean>(false)
   const [isConnecting, setIsConnecting] = useState<boolean>(false)
+  const [isEnabledLoading, setIsEnabledLoading] = useState<boolean>(false)
   const [isDisconnecting, setIsDisconnecting] = useState<boolean>(false)
 
   // I have two alert setup, one fires up when selected wallet is not installed in the browser and other one when enabled wallet is on wrong network
@@ -158,7 +159,7 @@ const ConnectButton = () => {
   const hasWalletExtension = (walletName: SupportedWallets) => (!!window.cardano?.[walletName])
 
   const disconnecting = async () => {
-    const {hideWidget} = initNufiDappSdk()
+    const {hideWidget} = initNufiDappSdk('https://localhost:8091')
 
     setIsDisconnecting(true);
     resetStatus();
@@ -168,6 +169,25 @@ const ConnectButton = () => {
     setIsConnecting(false)
     _setWalletName(null)
   }
+
+  // Testing of "isEnabled" method
+  useEffect(() => {
+    const fn = async () => {
+      setIsEnabledLoading(true)
+
+      initNufiDappCardanoSdk('sso', {provider: 'google', origin: 'https://localhost:8091'})
+      const isEnabled = await window.cardano['nufiSSO'].isEnabled()
+      setIsEnabledLoading(false)
+
+      // We only login "isEnabled" here, as in the current state it is very messy to connect
+      // it to adaplays UI. Consider reapplying modifications to adaplays from start to make it
+      // more manageable.
+      // If so, figure out if we can get previously used wallet from the storage somehow and
+      // avoid the password if already logged in.
+      console.log('Is enabled', isEnabled)
+    }
+    fn()
+  }, [])
 
   useEffect(() => {
     const fn = async () => {
@@ -245,9 +265,9 @@ const ConnectButton = () => {
           <Button {...connectbuttonStyle} border="none" visibility={candidateWallet === 'standard' || (_walletName !== 'nufiSSO' && walletConnected) ? 'hidden': 'visible'}>
             <GoogleButton
               style={{background: '#333', width: 250}}
-              label={isConnecting ? 'Connecting ...' : 'Sign in with Google'}
+              label={isConnecting ? 'Connecting ...' : isEnabledLoading ? 'Loading ...' : 'Sign in with Google'}
               onClick={() => {
-                initNufiDappCardanoSdk('sso', {origin: 'https://localhost:8091'});
+                initNufiDappCardanoSdk('sso', {origin: 'https://localhost:8091', provider: 'google'});
                 _setWalletName('nufiSSO')
                 connectWallet('nufiSSO')
               }}
