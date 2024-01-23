@@ -7,7 +7,7 @@ import Navbar from '../components/navbar'
 import { SessionProvider } from "next-auth/react"
 import { Session } from 'next-auth'
 import { headingTheme } from 'theme/components/heading'
-import { initNufiDappSdk } from '@nufi/dapp-client-core';
+import { initNufiDappSdk, getWidgetApi} from '@nufi/dapp-client-core';
 
 const theme = extendTheme({
   fonts: {
@@ -23,12 +23,12 @@ const theme = extendTheme({
 function MyApp({ Component, pageProps }: AppProps<{ session: Session }>) {
 
   useEffect(() => {
-   const {onSocialLoginInfoChanged} = initNufiDappSdk('https://localhost:8091');
+   initNufiDappSdk('https://localhost:8091');
+   const widgetApi = getWidgetApi()
 
-   onSocialLoginInfoChanged((data) => {
+   widgetApi!.onSocialLoginInfoChanged((data) => {
      console.log('Social login info changed', data)
    })
-
   }, []);
 
   return (

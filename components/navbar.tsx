@@ -3,7 +3,7 @@
 
 import type { User } from "next-auth"
 import type { SupportedWallets } from '../types/types'
-import { getSocialLoginInfo, initNufiDappSdk } from '@nufi/dapp-client-core';
+import { getWidgetApi } from '@nufi/dapp-client-core';
 import { initNufiDappCardanoSdk } from '@nufi/dapp-client-cardano';
 import { useState, useRef, useEffect } from 'react';
 import NextLink from 'next/link';
@@ -159,7 +159,7 @@ const ConnectButton = () => {
   const hasWalletExtension = (walletName: SupportedWallets) => (!!window.cardano?.[walletName])
 
   const disconnecting = async () => {
-    const {hideWidget} = initNufiDappSdk('https://localhost:8091')
+    const {hideWidget} = getWidgetApi()
 
     setIsDisconnecting(true);
     resetStatus();
@@ -175,7 +175,7 @@ const ConnectButton = () => {
     const fn = async () => {
       setIsEnabledLoading(true)
 
-      initNufiDappCardanoSdk('sso', {provider: 'google', origin: 'https://localhost:8091'})
+      initNufiDappCardanoSdk('sso', {provider: 'google'})
       const isEnabled = await window.cardano['nufiSSO'].isEnabled()
       setIsEnabledLoading(false)
 
@@ -186,7 +186,10 @@ const ConnectButton = () => {
       // avoid the password if already logged in.
       console.log('Is enabled', isEnabled)
     }
-    fn()
+    // For a strange reason this `useEffect` runs sooner than _app `useEffect` 
+    setTimeout(() => {
+      fn()
+    }, 200)
   }, [])
 
   useEffect(() => {
@@ -209,10 +212,10 @@ const ConnectButton = () => {
     setCandidateWallet(walletName === 'nufiSSO' ? 'sso' : 'standard')
 
     if (walletName === 'nufiSSO') {
-      initNufiDappCardanoSdk('sso', {provider: 'google', origin: 'https://localhost:8091'});
+      initNufiDappCardanoSdk('sso', {provider: 'google'});
     }
     if (walletName === 'nufiSnap') {
-      initNufiDappCardanoSdk('snap', {origin: 'https://localhost:8091'})
+      initNufiDappCardanoSdk('snap')
     }
 
     if (!hasWalletExtension(walletName)) {
@@ -267,7 +270,7 @@ const ConnectButton = () => {
               style={{background: '#333', width: 250}}
               label={isConnecting ? 'Connecting ...' : isEnabledLoading ? 'Loading ...' : 'Sign in with Google'}
               onClick={() => {
-                initNufiDappCardanoSdk('sso', {origin: 'https://localhost:8091', provider: 'google'});
+                initNufiDappCardanoSdk('sso', {provider: 'google'});
                 _setWalletName('nufiSSO')
                 connectWallet('nufiSSO')
               }}
@@ -363,7 +366,7 @@ const ConnectButton = () => {
     <div style={{display: 'flex', alignItems: 'center'}}>
       <GoogleButton
           style={{background: '#333', width: 250}}
-          label={getSocialLoginInfo()?.email || 'Connected'}
+          label={getWidgetApi()?.getSocialLoginInfo()?.email || 'Connected'}
           onClick={() => connectWallet('nufiSSO')}
         />
       <Button {...connectbuttonStyle} height="50px" marginLeft="8px" onClick={() => disconnecting()} isLoading={isDisconnecting} >
