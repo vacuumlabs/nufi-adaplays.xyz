@@ -3,7 +3,7 @@
 
 import type { User } from "next-auth"
 import type { SupportedWallets } from '../types/types'
-import { getWidgetApi } from '@nufi/dapp-client-core';
+import { getContext, getWidgetApi } from '@nufi/dapp-client-core';
 import { initNufiDappCardanoSdk } from '@nufi/dapp-client-cardano';
 import { useState, useRef, useEffect } from 'react';
 import NextLink from 'next/link';
@@ -175,7 +175,7 @@ const ConnectButton = () => {
     const fn = async () => {
       setIsEnabledLoading(true)
 
-      initNufiDappCardanoSdk('sso', {provider: 'google'})
+      initNufiDappCardanoSdk(getContext, 'sso', {provider: 'google'})
       const isEnabled = await window.cardano['nufiSSO'].isEnabled()
       setIsEnabledLoading(false)
 
@@ -212,10 +212,10 @@ const ConnectButton = () => {
     setCandidateWallet(walletName === 'nufiSSO' ? 'sso' : 'standard')
 
     if (walletName === 'nufiSSO') {
-      initNufiDappCardanoSdk('sso', {provider: 'google'});
+      initNufiDappCardanoSdk(getContext, 'sso', {provider: 'google'});
     }
     if (walletName === 'nufiSnap') {
-      initNufiDappCardanoSdk('snap')
+      initNufiDappCardanoSdk(getContext, 'snap')
     }
 
     if (!hasWalletExtension(walletName)) {
@@ -270,7 +270,7 @@ const ConnectButton = () => {
               style={{background: '#333', width: 250}}
               label={isConnecting ? 'Connecting ...' : isEnabledLoading ? 'Loading ...' : 'Sign in with Google'}
               onClick={() => {
-                initNufiDappCardanoSdk('sso', {provider: 'google'});
+                initNufiDappCardanoSdk(getContext, 'sso', {provider: 'google'});
                 _setWalletName('nufiSSO')
                 connectWallet('nufiSSO')
               }}
