@@ -1144,8 +1144,8 @@
   version "0.0.0"
   uid ""
 
-"@nufi/dapp-client-core@8.0.1":
-  version "8.0.1"
+"@nufi/dapp-client-core@8.1.0":
+  version "8.1.0"
 
 "@nufi/dapp-client-core@link:../nufi/packages/dapp-client/core":
   version "0.0.0"

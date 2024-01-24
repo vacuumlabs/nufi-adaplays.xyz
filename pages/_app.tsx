@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import type { AppProps } from 'next/app'
 import { ChakraProvider, extendTheme, Container } from '@chakra-ui/react'
 import Head from 'next/head'
@@ -7,7 +7,7 @@ import Navbar from '../components/navbar'
 import { SessionProvider } from "next-auth/react"
 import { Session } from 'next-auth'
 import { headingTheme } from 'theme/components/heading'
-import { initNufiDappSdk, getWidgetApi} from '@nufi/dapp-client-core';
+import nufiCoreSdk from '@nufi/dapp-client-core';
 
 const theme = extendTheme({
   fonts: {
@@ -23,12 +23,12 @@ const theme = extendTheme({
 function MyApp({ Component, pageProps }: AppProps<{ session: Session }>) {
 
   useEffect(() => {
-   initNufiDappSdk('https://localhost:8091');
-   const widgetApi = getWidgetApi()
+    nufiCoreSdk.init('https://localhost:8091');
+    const widgetApi = nufiCoreSdk.getApi()
 
-   widgetApi!.onSocialLoginInfoChanged((data) => {
-     console.log('Social login info changed', data)
-   })
+    widgetApi.onSocialLoginInfoChanged((data) => {
+      console.log('Social login info changed', data)
+    })
   }, []);
 
   return (
