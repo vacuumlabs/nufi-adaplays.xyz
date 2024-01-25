@@ -1140,22 +1140,22 @@
     "@nodelib/fs.scandir" "2.1.5"
     fastq "^1.6.0"
 
-"@nufi/dapp-client-cardano@^0.0.1":
-  version "0.0.1"
-  resolved "https://registry.yarnpkg.com/@nufi/dapp-client-cardano/-/dapp-client-cardano-0.0.1.tgz#5cbbee53e0400e7d3faa703c7573fbe9064063b5"
-  integrity sha512-Mb7iOZsDVZ0mRYfwfHuKcyGci+S/+oGGn+9mestXXiKIzSZdGmpY67c4ZlkidZuwIcYQaL7C2IrSUMR0HGNqRQ==
+"@nufi/dapp-client-cardano@^0.0.2":
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/@nufi/dapp-client-cardano/-/dapp-client-cardano-0.0.2.tgz#438416365eb2b87300513eb855935a4b8bf0f738"
+  integrity sha512-SfwJV/abK8F0HGkeQnHytlfpHyhhDrvT7fmOFL17lwjwqDcbKZoIC878kxsXI53zROCpl/rEa2khm5f06CfozA==
   dependencies:
-    "@nufi/dapp-client-core" "0.0.1"
+    "@nufi/dapp-client-core" "^0.0.2"
 
-"@nufi/dapp-client-core@0.0.1", "@nufi/dapp-client-core@^0.0.1":
-  version "0.0.1"
-  resolved "https://registry.yarnpkg.com/@nufi/dapp-client-core/-/dapp-client-core-0.0.1.tgz#7c6aeae2c303904ce9f6d5e8813bbe684b9af7c5"
-  integrity sha512-ZHoEbsBbDcJ9jAXnowdiUGdrcVg7lBMGyZtsaQtmqTY5Qyu6RsKJn+ZZtsjOT46xbeMdU5ymIughTgbxjWd1Tw==
+"@nufi/dapp-client-core@^0.0.2":
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/@nufi/dapp-client-core/-/dapp-client-core-0.0.2.tgz#4f0d73be87f49e8519f93344c08c13b4ab797ad8"
+  integrity sha512-bmlsdrutwoBqV7J4JFxbIZsiyF/fNQT+5t6q+O288af5LiCiFb2p2Lb2JyBG+7xKbsqKkO3RuKaUQzSL6IjIkA==
 
-"@nufi/sso-button-react@^0.0.1":
-  version "0.0.1"
-  resolved "https://registry.yarnpkg.com/@nufi/sso-button-react/-/sso-button-react-0.0.1.tgz#4562ff9b62dec2c277412be482e095b83343d225"
-  integrity sha512-hM8LxkMs0IbpuIt3I5if+FlC1zotGhOT8idLZ7cnWN9066Q/jJ09oOR82gjLUMUNED3MLhhDwgvER7rJvg2NwQ==
+"@nufi/sso-button-react@^0.0.2":
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/@nufi/sso-button-react/-/sso-button-react-0.0.2.tgz#d5ddfa6ed9cd2903ef1623375210e163ef94f6ed"
+  integrity sha512-7sU8EdSg/Cb3P+sQJelpS1Hc7lPgbXtjnC0ShF4dvAUWkaS+eqtZPsq56fb6EbdBf3Je4HWM9PRMcqcD0y8bCA==
   dependencies:
     classnames "^2.5.1"
 
