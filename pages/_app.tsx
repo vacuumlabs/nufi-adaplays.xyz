@@ -6,6 +6,9 @@ import Navbar from '../components/navbar'
 import { SessionProvider } from "next-auth/react"
 import { Session } from 'next-auth'
 import { headingTheme } from 'theme/components/heading'
+import { useEffect } from 'react';
+import nufiCoreSdk from '@nufi/dapp-client-core'
+import '@nufi/sso-button-react/dist/style.css'
 
 const theme = extendTheme({
   fonts: {
@@ -19,6 +22,10 @@ const theme = extendTheme({
 
 // https://stackoverflow.com/questions/73668032/nextauth-type-error-property-session-does-not-exist-on-type
 function MyApp({ Component, pageProps }: AppProps<{ session: Session }>) {
+  useEffect(() => {
+    nufiCoreSdk.init('https://localhost:8091')
+  }, [])
+
   return (
     <SessionProvider session={pageProps.session} refetchOnWindowFocus={false}>
       <ChakraProvider theme={theme}>
