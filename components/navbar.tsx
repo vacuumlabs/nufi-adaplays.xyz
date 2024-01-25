@@ -4,10 +4,11 @@
 import type { User } from "next-auth"
 import type { SupportedWallets } from '../types/types'
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import NextLink from 'next/link';
 import { navHeight } from 'constants/global';
 import { WalletApi, Lucid } from "lucid-cardano";
+import GoogleButton from 'react-google-button'
 import {
   Heading,
   Flex,
@@ -41,7 +42,7 @@ YupPassword(yup)
 import { brandButtonStyle } from 'theme/simple'
 import { getApi, getLucid } from "utils/lucid/lucid";
 
-export default function Navbar() {
+export default function Navbar({hideWidget}: {hideWidget?: () => void}) {
   const [logoHover, setLogoHover] = useState<boolean>(false);
 
   return (
@@ -64,7 +65,7 @@ export default function Navbar() {
           onMouseLeave={() => setLogoHover(false)}
         >
           <HStack>
-            <Heading variant='brand' position='relative' left='10px' bg='white' zIndex='1' borderRightRadius='full'>
+            <Heading variant='brand' position='relative' left='10px' bg='white' borderRightRadius='full'>
               adaplays
             </Heading>
             <Logo />
@@ -96,17 +97,18 @@ export default function Navbar() {
             <Icon pt='10px' height='36px' width='36px' as={FaGithub}></Icon>
           </Box> */}
         </Link>
-        <ConnectButton />
+        <ConnectButton hideWidget={hideWidget} />
       </HStack>
     </Flex>
   );
 }
 
-const ConnectButton = () => {
+const ConnectButton = ({hideWidget}: {hideWidget?: () => void}) => {
   const { status } = useSession()
-  const [_walletName, _setWalletName] = useState<SupportedWallets>('nami')
+  const [_walletName, _setWalletName] = useState<SupportedWallets>('nufi')
   const [walletConnected, setWalletConnected] = useState<boolean>(false)
   const [selectWalletTapped, setSelectWalletTapped] = useState<boolean>(false)
+  const [isConnecting, setIsConnecting] = useState<boolean>(false)
   const [isDisconnecting, setIsDisconnecting] = useState<boolean>(false)
 
   // I have two alert setup, one fires up when selected wallet is not installed in the browser and other one when enabled wallet is on wrong network
@@ -122,7 +124,7 @@ const ConnectButton = () => {
       setSelectWalletTapped(false);
     }, 200)
   }
-  const supportedWallets: SupportedWallets[] = ['nami', 'eternl']
+  const supportedWallets: SupportedWallets[] = ['nufi']
 
   const createPasswordSchema = yup.object().shape({
     password: yup
@@ -157,13 +159,28 @@ const ConnectButton = () => {
     resetStatus();
     await signOut({ redirect: false });
     setIsDisconnecting(false);
+    hideWidget?.()
+    setIsConnecting(false)
   }
+
+  useEffect(() => {
+    const fn = async () => {
+      if (status === 'authenticated') {
+        const isEnabled = await window.cardano.nufi.isEnabled()
+        if (!isEnabled) {
+          await disconnecting()
+        }
+      } 
+    }
+    fn()
+  }, [status])
 
   const connectWallet = async (walletName: SupportedWallets) => {
     if (!hasWalletExtension(walletName)) {
       walletNotFound.onOpen();
     } else {
       try {
+        setIsConnecting(true)
         const api: WalletApi = await getApi(walletName)
         // In case the above connection fails, the whole component fails so I guess nothing to worry.
         const networkId = await api.getNetworkId();
@@ -171,11 +188,14 @@ const ConnectButton = () => {
           wrongNetwork.onOpen()
         } else {
           _setWalletName(walletName)
-          setWalletConnected(await window.cardano.nami.isEnabled())
+          const enabled =  await window.cardano.nufi.isEnabled()
+          setWalletConnected(enabled)
         }
       } catch (e) {
         console.error(e);
         resetStatus();
+      } finally {
+        setIsDisconnecting(false)
       }
     }
   }
@@ -188,32 +208,19 @@ const ConnectButton = () => {
     <>
       <SimpleAlert {...{ isOpen: walletNotFound.isOpen, onClose: () => { resetStatus(); walletNotFound.onClose() }, cancelRef: cancelRefWalletNotFound, message: "You don't have the selected wallet installed." }} />
       <SimpleAlert {...{ isOpen: wrongNetwork.isOpen, onClose: () => { resetStatus(); wrongNetwork.onClose() }, cancelRef: cancelRefWrongNetwork, message: "You have selected wrong network, please switch to Preprod." }} />
+      
       <Popover onClose={resetStatus}>
         <PopoverTrigger>
-          <Button {...connectbuttonStyle}>
-            Connect
+        <Button {...connectbuttonStyle} border="none">
+        <GoogleButton
+            style={{background: '#333', width: 250}}
+            label={isConnecting ? 'Connecting ...' : 'Sign in with Google'}
+            onClick={() => connectWallet('nufi')}
+          />
           </Button>
         </PopoverTrigger>
         {walletConnected === false
-          ? <PopoverContent>
-            <PopoverHeader {...popoverHeaderStyle}>
-              Select wallet
-            </PopoverHeader>
-            <PopoverArrow />
-            <PopoverCloseButton />
-            <PopoverBody>
-              <VStack>
-                {supportedWallets.map((walletName) => (
-                  <Button key={walletName} onClick={() => { setSelectWalletTapped(true); connectWallet(walletName) }} variant='link' colorScheme='black' isLoading={selectWalletTapped}>
-                    {walletName[0].toUpperCase() + walletName.slice(1)}
-                  </Button>
-                ))}
-              </VStack>
-              <PopoverFooter {...popoverFooterStyle}>
-                <Text align='center'> ✤ step 1 of 2 ✤ </Text>
-              </PopoverFooter>
-            </PopoverBody>
-          </PopoverContent>
+          ? null
           : <PopoverContent>
             <PopoverHeader {...popoverHeaderStyle}>
               Create session password
@@ -270,8 +277,15 @@ const ConnectButton = () => {
       </Popover>
     </>
   ); else return (
-    <Button {...connectbuttonStyle} onClick={() => disconnecting()} isLoading={isDisconnecting} >
-      Disconnect
-    </Button>
+    <div style={{display: 'flex', alignItems: 'center'}}>
+      <GoogleButton
+          style={{background: '#333', width: 250}}
+          label='Connected'
+          onClick={() => connectWallet('nufi')}
+        />
+      <Button {...connectbuttonStyle} height="50px" marginLeft="8px" onClick={() => disconnecting()} isLoading={isDisconnecting} >
+        Disconnect
+      </Button>
+    </div>
   );
 }

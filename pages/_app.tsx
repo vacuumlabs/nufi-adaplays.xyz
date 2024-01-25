@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import type { AppProps } from 'next/app'
 import { ChakraProvider, extendTheme, Container } from '@chakra-ui/react'
 import Head from 'next/head'
@@ -6,6 +7,7 @@ import Navbar from '../components/navbar'
 import { SessionProvider } from "next-auth/react"
 import { Session } from 'next-auth'
 import { headingTheme } from 'theme/components/heading'
+import { nufiAdapter } from '@nufi/dapp-client-cardano';
 
 const theme = extendTheme({
   fonts: {
@@ -17,13 +19,28 @@ const theme = extendTheme({
   }
 })
 
+// TODO: adjust SDK so that it prevents injecting iframe multiple times
+let didInject = false;
+
 // https://stackoverflow.com/questions/73668032/nextauth-type-error-property-session-does-not-exist-on-type
 function MyApp({ Component, pageProps }: AppProps<{ session: Session }>) {
+  const [hideWidget, setHideWidget] = useState<() => void>()
+
+  useEffect(() => {
+    if (didInject === false) {
+      // TODO: adjust SDK so that iframe is visible only after user choose NuFi wallet
+      // (relies on proper batching of requests).
+      const {hideWidget} = nufiAdapter('web3Auth');
+      setHideWidget(() => hideWidget)
+      didInject = true;
+    }
+  }, []);
+
   return (
     <SessionProvider session={pageProps.session}>
       <ChakraProvider theme={theme}>
         <Head>
-          <title>adaplays.xyz</title>
+          <title>adaplays.com</title>
           <meta name="description" content="Place to play simple games with ada" />
           <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png"/>
           <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png"/>
@@ -36,8 +53,9 @@ function MyApp({ Component, pageProps }: AppProps<{ session: Session }>) {
           <meta name="theme-color" content="#ffffff"/>
         </Head>
         <Container maxWidth='container.md'>
-          <Navbar/>
+          <Navbar hideWidget={hideWidget} />
           <Component {...pageProps} />
+          <div style={{position: 'fixed', bottom: 10, right: 10}}>Copyright (c) 2022 Sourabh Aggarwal</div>
         </Container>
       </ChakraProvider>
     </SessionProvider>
