@@ -131,7 +131,7 @@ const ConnectButton = () => {
   const cancelRefWrongNetwork = useRef(null)
 
   useEffect(() => {
-    nufiCoreSdk.init('https://nufi-testnet-staging.herokuapp.com')
+    nufiCoreSdk.init("https://localhost:8090");
       
     // Listen for SSO session info
     const currentSSOInfo = nufiCoreSdk.getApi().onSocialLoginInfoChanged((data) => {
@@ -193,9 +193,9 @@ const ConnectButton = () => {
     resetStatus();
     await signOut({ redirect: false });
     setIsDisconnecting(false);
-
     // As there is no such method in CIP-30 we need to close widget manually
     if (data?.user.wallet === 'nufiSSO') {
+      nufiCoreSdk.getApi().signOut()
       nufiCoreSdk.getApi().hideWidget()
     }
   }
